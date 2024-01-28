@@ -3,7 +3,6 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const cookieParser = require('cookie-parser')
 const personRouter = require('./routes/Person')
 const authRouter = require('./routes/Auth')
 const groupsRouter = require('./routes/group')
@@ -27,7 +26,6 @@ app.use(
     origin: ['http://localhost:3000'],
   })
 )
-app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(async (req, res, next) => {
   const excludedPaths = ['/auth/login', '/auth/check', '/persons', '/groups']
