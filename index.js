@@ -23,7 +23,7 @@ mongoose
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://ahiah2ahiah.vercel.app'],
   })
 )
 app.use(bodyParser.json())
