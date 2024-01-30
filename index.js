@@ -8,6 +8,7 @@ const authRouter = require('./routes/Auth')
 const groupsRouter = require('./routes/group')
 const responseMessage = require('./utils/responseMessage')
 const Person = require('./models/Person')
+const quizRouter = require('./routes/quiz')
 const app = express()
 
 const PORT = process.env.PORT || 5000
@@ -28,9 +29,18 @@ app.use(
 )
 app.use(bodyParser.json())
 app.use(async (req, res, next) => {
-  const excludedPaths = ['/auth/login', '/auth/check', '/persons', '/groups']
+  const regex = /\/quiz\/([^\/]+)\/answer/
+  const excludedPaths = [
+    '/auth/login',
+    '/auth/check',
+    '/persons',
+    '/persons/search',
+    '/groups',
+    '/quiz/active',
+    '/quiz/addmany',
+  ]
 
-  if (excludedPaths.includes(req.path)) {
+  if (excludedPaths.includes(req.path) || regex.test(req.path)) {
     // Skip token verification for excluded paths
     return next()
   }
@@ -54,9 +64,11 @@ app.use('/groups', groupsRouter)
 
 app.use('/auth', authRouter)
 
+app.use('/quiz', quizRouter)
+
 app.put('/qrcode', async (req, res) => {
   const { id } = req.query
-  const INC_POINT = 5
+  const INC_POINT = 1
   if (!id) return res.status(400).json(responseMessage('فين الID؟', false))
   try {
     const { modifiedCount } = await Person.updateOne(
