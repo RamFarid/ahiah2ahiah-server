@@ -40,7 +40,11 @@ app.use(async (req, res, next) => {
     '/quiz/addmany',
   ]
 
-  if (excludedPaths.includes(req.path) || regex.test(req.path)) {
+  if (
+    excludedPaths.includes(req.path) ||
+    regex.test(req.path) ||
+    req.path.includes('cansolve')
+  ) {
     // Skip token verification for excluded paths
     return next()
   }

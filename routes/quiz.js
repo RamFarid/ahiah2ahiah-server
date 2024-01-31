@@ -81,6 +81,13 @@ quizRouter.post('/:quizID/answer', async (req, res) => {
   const { userID, degree, answers } = req.body
   const { quizID } = req.params
   try {
+    const target = await Person.findById(userID).select('quizzes').lean()
+    const isSolved = Boolean(
+      target.quizzes.find((q) => q.quiz_id.equals(quizID))
+    )
+    if (isSolved) {
+      return res.status(403).json(responseMessage('أنت حليت الكويز ده قبل كده'))
+    }
     const targetPerson = await Person.findOneAndUpdate(
       { _id: userID },
       {

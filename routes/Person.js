@@ -2,6 +2,7 @@ const express = require('express')
 const personRouter = express.Router()
 const Person = require('../models/Person')
 const responseMessage = require('../utils/responseMessage')
+const { default: mongoose } = require('mongoose')
 
 personRouter.put('/:id', async (res, req) => {
   try {
@@ -109,6 +110,34 @@ personRouter.get('/search', async (req, res) => {
     console.log(error)
     res.status(500).json(responseMessage(error.message, false))
   }
+})
+
+personRouter.get('/:personID/cansolve/:quizID', async (req, res) => {
+  const { personID, quizID } = req.params
+  const isValidPersonID = mongoose.Types.ObjectId.isValid(personID)
+  if (!isValidPersonID)
+    return res.json(responseMessage('الـQR code مش متسجل عندنا', false))
+  try {
+    const person = await Person.findById(personID).lean()
+    if (person) {
+      const tookQuiz = Boolean(
+        person.quizzes.find((q) => q.quiz_id.equals(quizID))
+      )
+      if (tookQuiz) {
+        res.json(
+          responseMessage(
+            `صاحب الـQR code أسمه ${person.name} هو بالفعل حل الكويز ده`,
+            false
+          )
+        )
+      } else {
+        person.quizzes = null
+        res.json(responseMessage('DN', true, { data: person }))
+      }
+    } else {
+      res.json(responseMessage('الـQR code مش متسجل عندنا', false))
+    }
+  } catch (error) {}
 })
 
 module.exports = personRouter
