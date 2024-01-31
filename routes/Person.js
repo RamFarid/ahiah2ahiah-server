@@ -81,6 +81,24 @@ personRouter.get('/admin', async (_req, res) => {
   }
 })
 
+personRouter.put('/:personID/deletequiz', async (req, res) => {
+  const {
+    body: { quizID },
+    params: { personID },
+  } = req
+  try {
+    const person = await Person.findByIdAndUpdate(
+      personID,
+      { $pull: { quizzes: { quiz_id: quizID } } },
+      { new: true }
+    )
+    res.json(responseMessage('DN', true, { data: person }))
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(responseMessage(error.message, false))
+  }
+})
+
 personRouter.get('/search', async (req, res) => {
   const { q } = req.params
   try {
@@ -88,6 +106,7 @@ personRouter.get('/search', async (req, res) => {
     const persons = await Person.find({ name: regex }).lean()
     res.json(responseMessage('DN', true, { data: persons }))
   } catch (error) {
+    console.log(error)
     res.status(500).json(responseMessage(error.message, false))
   }
 })
